@@ -1,0 +1,114 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  secureId    String           @unique @default(uuid())
+  role        String
+  group       Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int
+  user        User?
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now())
+  deletedAt   DateTime?
+
+  @@map("roles")
+}
+
+model User {
+  id                   Int                   @id @default(autoincrement())
+  secureId             String                @unique @default(uuid())
+  name                 String?
+  email                String?               @unique
+  password             String?
+  birthdate            DateTime?             @db.Date()
+  typeUser             String
+  userCodes            Code[]
+  recoveryPasswordCode RecoveryPasswordCode?
+  role                 Role                  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId               Int                   @unique
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @default(now())
+  deletedAt            DateTime?
+
+  @@map("users")
+}
+
+model RecoveryPasswordCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique()
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Code {
+  id                Int       @id @default(autoincrement())
+  secureId          String    @unique @default(uuid())
+  code              String    @unique
+  active            Boolean
+  user              User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId            Int?
+  groupName         String?
+  responsiblePerson String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now())
+  deletedAt         DateTime?
+
+  @@map("codes")
+}
+
+model RolePermission {
+  id           Int        @id @default(autoincrement())
+  secureId     String     @unique @default(uuid())
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId       Int
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  permissionId Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now())
+  deletedAt    DateTime?
+}
+
+model Permission {
+  id         Int               @id @default(autoincrement())
+  secureId   String            @unique @default(uuid())
+  permission String
+  groups     GroupPermission[]
+  roles      RolePermission[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @default(now())
+  deletedAt  DateTime?
+}
+
+model GroupPermission {
+  secureId     String     @unique @default(uuid())
+  group        Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId      Int
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  permissionId Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now())
+  deletedAt    DateTime?
+
+  @@id([groupId, permissionId])
+}
+
+model Group {
+  id          Int               @id @default(autoincrement())
+  secureId    String            @unique @default(uuid())
+  name        String
+  roles       Role[]
+  permissions GroupPermission[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @default(now())
+  deletedAt   DateTime?
+}
