@@ -1,5 +1,5 @@
 import { exec } from 'child_process';
-import crypto from 'crypto';
+// import crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import util from 'util';
 dotenv.config({ path: '.env.test' });
@@ -10,7 +10,7 @@ export default async (): Promise<void> => {
 
   const execSync = util.promisify(exec);
 
-  global.__SCHEMA__ = `test_${crypto.randomUUID()}`;
+  global.__SCHEMA__ = `test_`;
 
   process.env.DATABASE_URL = `${process.env.DATABASE_URL}?schema=${global.__SCHEMA__}`;
 

@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2022",
+    "target": "ES6",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -27,5 +27,8 @@
   },
   "include": [
     "./src"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

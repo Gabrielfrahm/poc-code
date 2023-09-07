@@ -31,6 +31,14 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+    networks:
+      - user-network
+    container_name: poc-redis
+
 networks:
   user-network:
     driver: bridge

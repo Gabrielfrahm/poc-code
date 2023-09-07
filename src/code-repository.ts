@@ -1,57 +1,50 @@
 import { PrismaClient } from '@prisma/client';
 
+import { isMainThread, Worker, parentPort, workerData } from 'worker_threads';
+
 import { Code } from './code';
+import { db } from './prisma/db';
 
 export class CodeRepository {
   constructor(private codeModel: PrismaClient) {}
 
   async insert(qtd: number): Promise<any> {
-    // let code: unknown;
-    const allCodes = await this.codeModel.code.findMany({
-      select: {
-        code: true,
-      },
-    });
-    const codes: string[] = [];
-    let sum = 0;
-
-    while (sum < qtd) {
-      const code = new Code({
-        active: true,
-      });
-
-      if (
-        !allCodes.some((item) => item.code === code.code) &&
-        !codes.some((item) => item === code.code)
-      ) {
-        codes.push(code.code);
-        sum++;
-      }
-    }
-
-    console.log(codes);
-    // while (!test) {
-    //   if (allCodes.includes({ code: entity.code })) {
-    //     entity.makeCode();
-    //     console.log(entity.code);
-    //     test = true;
-    //     return;
-    //   }
-    // }
-    // const code = await this.codeModel.code.create({
-    //   data: {
-    //     ...(entity.id && { id: entity.id }),
-    //     code: entity.code,
-    //     active: entity.active,
-    //     groupName: entity.groupName,
-    //     responsiblePerson: entity.responsiblePerson,
-    //     createdAt: entity.createdAt,
-    //     updatedAt: entity.updatedAt,
-    //     deletedAt: entity.deletedAt,
-    //   },
+    // await new Promise((resolve, reject) => {
+    //   const worker = new Worker(__dirname + '/test-prisma.js', { workerData });
+    //   const worker2 = new Worker(__dirname + '/test-prisma.js', { workerData });
+    //   worker.once('message', (message) => {
+    //     console.log('primeira thread');
+    //     return resolve(
+    //       this.codeModel.code
+    //         .createMany({
+    //           data: message.map((item) => {
+    //             return {
+    //               active: true,
+    //               code: item,
+    //             };
+    //           }),
+    //         })
+    //         .then((res) => console.log(res))
+    //     );
+    //   });
+    //   worker.on('error', reject);
+    //   worker2.once('message', (message) => {
+    //     console.log('segunda thread');
+    //     return resolve(
+    //       this.codeModel.code
+    //         .createMany({
+    //           data: message.map((item) => {
+    //             return {
+    //               active: true,
+    //               code: item,
+    //             };
+    //           }),
+    //         })
+    //         .then((res) => console.log(res))
+    //     );
+    //   });
+    //   worker2.on('error', reject);
     // });
-
-    // return code;
   }
 
   private async _checkCode(code: string): Promise<boolean> {
